@@ -9,9 +9,13 @@ if not OPENROUTER_API_KEY:
 
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
+UPLOAD_DIR_FAVORITES = "outputs/favorites"
 PREFERRED_MODELS = [
     "google/gemini-2.5-flash-image",
-    "bytedance-seed/seedream-4.5"
+    "bytedance-seed/seedream-4.5",
+    "anthropic/claude-3.7-sonnet",
+    "openai/gptimage",
+    "alireza1197/flux-krea-dev"
 ]
 
 UPLOAD_DIR_PERSON = "uploads/person"
