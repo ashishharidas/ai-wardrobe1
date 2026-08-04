@@ -76,19 +76,19 @@ async def generate_try_on(
     """
     try:
         person_bytes = await person_image.read()
-        save_upload(UPLOAD_DIR_PERSON, "person", person_bytes)
+        # save_upload(UPLOAD_DIR_PERSON, "person", person_bytes)
         person_b64 = encode_image_to_base64(person_bytes)
         
         top_b64 = None
         if top_image:
             top_bytes = await top_image.read()
-            save_upload(UPLOAD_DIR_TOPS, "top", top_bytes)
+            # save_upload(UPLOAD_DIR_TOPS, "top", top_bytes)
             top_b64 = encode_image_to_base64(top_bytes)
             
         bottom_b64 = None
         if bottom_image:
             bottom_bytes = await bottom_image.read()
-            save_upload(UPLOAD_DIR_BOTTOMS, "bottom", bottom_bytes)
+            # save_upload(UPLOAD_DIR_BOTTOMS, "bottom", bottom_bytes)
             bottom_b64 = encode_image_to_base64(bottom_bytes)
             
         if not top_b64 and not bottom_b64:

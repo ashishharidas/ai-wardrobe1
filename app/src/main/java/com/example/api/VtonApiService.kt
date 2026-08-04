@@ -15,7 +15,7 @@ import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
 class VtonApiService {
-    val baseUrl = "http://192.168.220.36:8000/try-on"
+    val baseUrl = "https://ai-wardrobe-qmod.onrender.com/try-on"
     private val client = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)
         .readTimeout(120, TimeUnit.SECONDS)
