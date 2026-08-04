@@ -42,12 +42,17 @@ def save_upload(upload_dir: str, prefix: str, file_bytes: bytes) -> str:
         f.write(file_bytes)
     return filepath
 
-def save_generated_image(image_data: str, request: Request) -> str:
+def save_generated_image(image_data, request: Request) -> str:
+    # Handle case where OpenRouter returns image data as a dict instead of a string
+    if isinstance(image_data, dict):
+        # OpenRouter may return {"url": "..."} or {"base64": "..."}
+        image_data = image_data.get("url") or image_data.get("base64") or str(image_data)
+
     file_id = str(uuid.uuid4())[:8]
     date_str = time.strftime("%Y%m%d")
     filename = f"generated_{date_str}_{file_id}.png"
     filepath = os.path.join(OUTPUT_DIR, filename)
-        
+
     if image_data.startswith("data:image"):
         # It's a base64 data URI
         header, encoded = image_data.split(",", 1)
@@ -57,7 +62,7 @@ def save_generated_image(image_data: str, request: Request) -> str:
         return f"{base_url}/outputs/generated/{filename}"
     elif image_data.startswith("http"):
         return image_data
-                
+
     return image_data
 
 @app.get("/")
@@ -95,7 +100,7 @@ async def generate_try_on(
             return JSONResponse(status_code=400, content={"error": "Must provide at least a top_image or bottom_image."})
 
         generated_image_raw, model_id = await generate_try_on_image(person_b64, top_b64, bottom_b64)
-        
+
         if generated_image_raw:
             final_url = save_generated_image(generated_image_raw, request)
             return JSONResponse(status_code=200, content={
