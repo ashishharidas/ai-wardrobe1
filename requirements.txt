@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+python-multipart
+requests
+httpx
+python-dotenv
+torch
+torchvision
+diffusers
+transformers
+accelerate
+opencv-python-headless
+Pillow
+numpy
+scipy

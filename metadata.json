@@ -1,0 +1,6 @@
+{
+  "name": "ÉLAN",
+  "description": "A Personal AI Wardrobe — Created Exclusively for Anavadya",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
