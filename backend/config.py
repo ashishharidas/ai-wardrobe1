@@ -7,7 +7,7 @@ POLLINATIONS_API_KEY = os.getenv("POLLINATIONS_API_KEY")
 if not POLLINATIONS_API_KEY:
     print("Warning: POLLINATIONS_API_KEY is not set in the environment. Using anonymous tier.")
 
-POLLINATIONS_API_URL = "https://text.pollinations.ai/openai"
+POLLINATIONS_API_URL = "https://gen.pollinations.ai"
 
 UPLOAD_DIR_FAVORITES = "outputs/favorites"
 

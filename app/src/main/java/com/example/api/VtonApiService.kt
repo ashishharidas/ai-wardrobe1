@@ -18,6 +18,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+import com.example.BuildConfig
 
 class VtonApiService {
     private val baseUrl = "https://gen.pollinations.ai"
@@ -141,7 +142,7 @@ class VtonApiService {
             
             val request = Request.Builder()
                 .url("$baseUrl/v1/chat/completions")
-                .addHeader("Authorization", "Bearer YOUR_API_KEY_HERE")
+                .addHeader("Authorization", "Bearer ${BuildConfig.POLLINATIONS_API_KEY}")
                 .post(requestBody)
                 .build()
                 
