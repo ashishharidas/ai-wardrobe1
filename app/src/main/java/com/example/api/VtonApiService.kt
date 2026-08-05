@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 class VtonApiService {
-    private val baseUrl = "https://text.pollinations.ai/openai"
+    private val baseUrl = "https://gen.pollinations.ai"
     private val client = OkHttpClient.Builder()
         .connectTimeout(120, TimeUnit.SECONDS)
         .readTimeout(120, TimeUnit.SECONDS)
@@ -140,7 +140,8 @@ class VtonApiService {
             val requestBody = payloadObj.toString().toRequestBody("application/json".toMediaTypeOrNull())
             
             val request = Request.Builder()
-                .url(baseUrl)
+                .url("$baseUrl/v1/chat/completions")
+                .addHeader("Authorization", "Bearer YOUR_API_KEY_HERE")
                 .post(requestBody)
                 .build()
                 
