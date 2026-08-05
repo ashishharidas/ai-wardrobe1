@@ -3,11 +3,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-if not OPENROUTER_API_KEY:
-    raise ValueError("OPENROUTER_API_KEY is not set in the environment.")
+POLLINATIONS_API_KEY = os.getenv("POLLINATIONS_API_KEY")
+if not POLLINATIONS_API_KEY:
+    print("Warning: POLLINATIONS_API_KEY is not set in the environment. Using anonymous tier.")
 
-OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+POLLINATIONS_API_URL = "https://text.pollinations.ai/openai"
 
 UPLOAD_DIR_FAVORITES = "outputs/favorites"
 

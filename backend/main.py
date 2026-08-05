@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
-from openrouter_service import generate_try_on_image, RateLimitExceeded
+from pollinations_service import generate_try_on_image, RateLimitExceeded
 from config import UPLOAD_DIR_PERSON, UPLOAD_DIR_TOPS, UPLOAD_DIR_BOTTOMS, OUTPUT_DIR, UPLOAD_DIR_FAVORITES
 
 # Ensure directories exist
