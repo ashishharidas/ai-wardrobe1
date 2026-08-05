@@ -13,7 +13,7 @@ async def generate_try_on_image(person_b64: str, top_b64: Optional[str], bottom_
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "HTTP-Referer": "https://elan.fashion",
-        "X-Title": "ÉLAN Wardrobe",
+        "X-Title": "ELAN Wardrobe",
         "Content-Type": "application/json"
     }
 
