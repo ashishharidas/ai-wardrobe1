@@ -1,5 +1,12 @@
 package com.example.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -78,7 +85,17 @@ fun AppNavigation(userPreferences: UserPreferences) {
             PhotoSetupScreen(
                 onPhotoSaved = { uri ->
                     scope.launch(Dispatchers.IO) {
-                        userPreferences.completeSetup(uri)
+                        try {
+                            val inputStream = context.contentResolver.openInputStream(android.net.Uri.parse(uri))
+                            if (inputStream != null) {
+                                val savedFile = com.example.api.StorageManager.saveInputStreamToDir(inputStream, context.filesDir, "body")
+                                userPreferences.completeSetup(savedFile.absolutePath)
+                            } else {
+                                userPreferences.completeSetup(uri)
+                            }
+                        } catch (e: Exception) {
+                            userPreferences.completeSetup(uri)
+                        }
                     }
                     navController.navigate(Home) {
                         popUpTo(Welcome) { inclusive = true }
@@ -130,15 +147,20 @@ fun AppNavigation(userPreferences: UserPreferences) {
                 topImageUrl = args.topImageUrl,
                 bottomImageUrl = args.bottomImageUrl,
                 apiService = apiService,
+                dao = dao,
                 onResultReady = { resultUrl ->
                     scope.launch(Dispatchers.IO) {
-                        dao.insertLook(
-                            GeneratedLook(
-                                topImageUrl = args.topImageUrl,
-                                bottomImageUrl = args.bottomImageUrl,
-                                resultImageUri = resultUrl
+                        // Check if we need to insert (only if it wasn't already in DB)
+                        val existing = dao.getLookByCombination(args.topImageUrl, args.bottomImageUrl)
+                        if (existing == null) {
+                            dao.insertLook(
+                                GeneratedLook(
+                                    topImageUrl = args.topImageUrl,
+                                    bottomImageUrl = args.bottomImageUrl,
+                                    resultImageUri = resultUrl
+                                )
                             )
-                        )
+                        }
                     }
                     val encodedUrl = java.net.URLEncoder.encode(resultUrl, "UTF-8")
                     navController.navigate(Result(encodedUrl)) {
@@ -154,26 +176,40 @@ fun AppNavigation(userPreferences: UserPreferences) {
         composable<Result> { backStackEntry ->
             val args = backStackEntry.toRoute<Result>()
             val resultUrl = java.net.URLDecoder.decode(args.generatedImageUrl, "UTF-8")
-            val generatedLook = GeneratedLook(
-                id = 1,
-                resultImageUri = resultUrl
-            )
+            val generatedLookState = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<GeneratedLook?>(null) }
             
-            ResultScreen(
-                bodyPhotoUri = bodyPhotoUri,
-                look = generatedLook,
-                onBack = { 
-                    navController.navigate(Home) {
-                        popUpTo(Home) { inclusive = true }
-                    }
-                },
-                onSaveFavorite = { isFav ->
-                    scope.launch(Dispatchers.IO) {
-                        dao.updateFavorite(generatedLook.id, isFav)
-                    }
-                },
-                onGenerateAgain = { navController.popBackStack() }
-            )
+            androidx.compose.runtime.LaunchedEffect(resultUrl) {
+                generatedLookState.value = dao.getLookByUri(resultUrl)
+            }
+            
+            val generatedLook = generatedLookState.value
+            if (generatedLook != null) {
+                ResultScreen(
+                    bodyPhotoUri = bodyPhotoUri,
+                    look = generatedLook,
+                    onBack = { 
+                        navController.navigate(Home) {
+                            popUpTo(Home) { inclusive = true }
+                        }
+                    },
+                    onSaveFavorite = { isFav ->
+                        scope.launch(Dispatchers.IO) {
+                            generatedLook?.let { look ->
+                                dao.updateFavorite(look.id, isFav)
+                                if (isFav) {
+                                    com.example.api.StorageManager.copyFileToFavorites(context, look.resultImageUri)
+                                }
+                            }
+                        }
+                    },
+                    onGenerateAgain = { navController.popBackStack() }
+                )
+            } else {
+                // Loading or placeholder
+                androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    androidx.compose.material3.CircularProgressIndicator()
+                }
+            }
         }
         
         composable<Favorites> {

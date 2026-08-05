@@ -1,4 +1,4 @@
-package com.example.ui.screens
+content = """package com.example.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -139,3 +139,8 @@ fun TryOnScreen(
         }
     }
 }
+"""
+
+with open("app/src/main/java/com/example/ui/screens/TryOnScreen.kt", "w") as f:
+    f.write(content)
+print("Fixed TryOnScreen")

@@ -29,6 +29,12 @@ interface WardrobeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLook(look: GeneratedLook)
 
+    @Query("SELECT * FROM generated_looks WHERE (topImageUrl = :topUrl OR (topImageUrl IS NULL AND :topUrl IS NULL)) AND (bottomImageUrl = :bottomUrl OR (bottomImageUrl IS NULL AND :bottomUrl IS NULL)) LIMIT 1")
+    suspend fun getLookByCombination(topUrl: String?, bottomUrl: String?): GeneratedLook?
+
+    @Query("SELECT * FROM generated_looks WHERE resultImageUri = :uri LIMIT 1")
+    suspend fun getLookByUri(uri: String): GeneratedLook?
+
     @Query("UPDATE generated_looks SET isFavorite = :isFavorite WHERE id = :id")
     suspend fun updateFavorite(id: Int, isFavorite: Boolean)
 }

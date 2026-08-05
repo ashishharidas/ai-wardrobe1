@@ -77,7 +77,7 @@ fun ResultScreen(
     ) {
         // Base image (After)
         Image(
-            painter = rememberAsyncImagePainter(Uri.parse(look.resultImageUri)),
+            painter = rememberAsyncImagePainter(look.resultImageUri),
             contentDescription = "Generated Look",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -97,7 +97,7 @@ fun ResultScreen(
                     })
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(Uri.parse(bodyPhotoUri)),
+                    painter = rememberAsyncImagePainter(bodyPhotoUri),
                     contentDescription = "Original Photo",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

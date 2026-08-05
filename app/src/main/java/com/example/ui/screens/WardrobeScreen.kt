@@ -88,12 +88,17 @@ fun WardrobeScreen(
     ) { uri: Uri? ->
         uri?.let {
             scope.launch {
-                val newOutfit = Outfit(
-                    imageUrl = it.toString(),
-                    category = currentCategoryName,
-                    name = "$currentCategoryName Item"
-                )
-                dao.insertOutfit(newOutfit)
+                val inputStream = context.contentResolver.openInputStream(it)
+                if (inputStream != null) {
+                    val dir = if (selectedCategoryIndex == 0) com.example.api.StorageManager.getTopsDir(context) else com.example.api.StorageManager.getBottomsDir(context)
+                    val savedFile = com.example.api.StorageManager.saveInputStreamToDir(inputStream, dir, if (selectedCategoryIndex == 0) "top" else "bottom")
+                    val newOutfit = Outfit(
+                        imageUrl = savedFile.absolutePath,
+                        category = currentCategoryName,
+                        name = "$currentCategoryName Item"
+                    )
+                    dao.insertOutfit(newOutfit)
+                }
             }
         }
     }
@@ -261,6 +266,9 @@ fun WardrobeScreen(
                         onDelete = {
                             scope.launch {
                                 dao.deleteOutfit(outfit.id)
+                                try {
+                                    java.io.File(outfit.imageUrl).delete()
+                                } catch (e: Exception) {}
                             }
                         }
                     )
