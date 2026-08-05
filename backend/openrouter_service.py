@@ -6,9 +6,9 @@ from prompts import get_vton_prompt
 class RateLimitExceeded(Exception):
     pass
 
-async def generate_try_on_image(person_b64: str, top_b64: Optional[str], bottom_b64: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+async def generate_try_on_image(person_b64: str, top_b64: Optional[str], bottom_b64: Optional[str]) -> tuple[Optional[str], Optional[str], Optional[str]]:
     """
-    Returns (image_data_uri_or_url, model_used) or raises an error.
+    Returns (image_data_uri_or_url, model_used, error_msg) or raises an error.
     """
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -47,6 +47,7 @@ async def generate_try_on_image(person_b64: str, top_b64: Optional[str], bottom_
         })
 
     limit_exceeded = False
+    errors = []
 
     async with httpx.AsyncClient(timeout=60.0) as client:
         for model_id in PREFERRED_MODELS:
@@ -70,7 +71,7 @@ async def generate_try_on_image(person_b64: str, top_b64: Optional[str], bottom_
                     images = message.get("images", [])
                     if images:
                         # Some endpoints return url or base64
-                        return images[0], model_id
+                        return images[0], model_id, None
                     
                     # Also try parsing content for image url if they put it in text
                     content = message.get("content", "")
@@ -78,17 +79,23 @@ async def generate_try_on_image(person_b64: str, top_b64: Optional[str], bottom_
                         import re
                         urls = re.findall(r'(https?://[^\s)"]+)', content)
                         if urls:
-                            return urls[0], model_id
+                            return urls[0], model_id, None
+                            
+                    errors.append(f"{model_id} OK but no image. Content: {content[:150]}")
                             
                 elif response.status_code in [402, 429] or "rate limit" in response.text.lower() or "quota" in response.text.lower():
                     limit_exceeded = True
+                    errors.append(f"{model_id} rate limited.")
                     print(f"Limit Exceeded for {model_id}: {response.status_code}")
                     continue
+                else:
+                    errors.append(f"{model_id} error {response.status_code}: {response.text[:200]}")
                     
             except Exception as e:
+                errors.append(f"{model_id} exception: {str(e)}")
                 print(f"Model {model_id} failed: {e}")
                 
     if limit_exceeded:
         raise RateLimitExceeded("OpenRouter API rate limit or model credit quota has been reached.")
         
-    return None, None
+    return None, None, " | ".join(errors)

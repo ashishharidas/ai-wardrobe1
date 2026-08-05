@@ -81,15 +81,12 @@ class VtonApiService {
             val responseBodyString = response.body?.string()
 
             if (!response.isSuccessful) {
-                if (response.code == 429) {
-                    val limitMsg = try {
-                        JSONObject(responseBodyString ?: "").optString("message", "API Limit Exceeded")
-                    } catch (e: Exception) {
-                        "API Limit Exceeded"
-                    }
-                    throw Exception(limitMsg)
+                val errorMsg = try {
+                    JSONObject(responseBodyString ?: "").optString("message", "Backend server error: ${response.code}")
+                } catch (e: Exception) {
+                    "Backend server error: ${response.code}"
                 }
-                throw Exception("Backend server error: ${response.code}")
+                throw Exception(errorMsg)
             }
 
             if (responseBodyString == null) throw Exception("Empty response from server")

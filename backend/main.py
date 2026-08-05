@@ -177,7 +177,7 @@ async def generate_try_on(
             })
 
         # Generate new image
-        generated_image_raw, model_id = await generate_try_on_image(person_b64, top_b64, bottom_b64)
+        generated_image_raw, model_id, err_msg = await generate_try_on_image(person_b64, top_b64, bottom_b64)
 
         if generated_image_raw:
             final_url = save_generated_image(generated_image_raw, request, combo_hash=combo_hash)
@@ -193,7 +193,7 @@ async def generate_try_on(
             return JSONResponse(status_code=502, content={
                 "status": "error",
                 "limit_exceeded": False,
-                "message": "Failed to generate image. Models returned no image output."
+                "message": f"Failed to generate image: {err_msg}"
             })
 
     except RateLimitExceeded as rle:
